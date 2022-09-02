@@ -1,0 +1,58 @@
+* dump
+
+mysqldump -uroot -proot --all-databases >/tmp/all.sql
+mysqldump -uroot -proot --databases db1 db2 >/tmp/user.sql
+mysqldump -uroot -proot --databases db1 --tables a1 a2  >/tmp/db1.sql
+
+
+* mysql shell
+
+mysql shell processes code written in JavaScript, Python and SQL.
+
+adding the mysql APT repository
+sudo apt-get install mysql-shell
+
+* mysql as a document store
+
+* mysql 8.0 ref
+
+** innodb cluster
+
+high availability solution for MySQL
+
+consists of at least 3 MySQL server instances
+
+1. mysql shell (advanced client and code editor for MySQL, cluster admin)
+2. mysql server (work with group replication)
+3. mysql router (a lightweight middleware provides transparent routing between your application and InnoDB cluster)
+
+[[./images/innodb_cluster_overview.png]]
+
+You work with InnoDB Cluster using the AdminAPI, provided as part of MySQL Shell.
+
+AdminAPI is available in JavaScript and Python, and is well suited to scripting and automation of deployments of MySQL to achieve high-availability and scalability.
+
+By using MySQL Shell's AdminAPI, you can avoid the need to configure many instances manually.
+
+*** group replication
+
+group replication provides features such as automatic membership management, fault tolerance, automatic fallover.
+
+an InnoDB Cluster usually runs in a single-primary mode, with one primary instance(read-write) and multiple secondary instances(read-only).
+
+advanced users can also take advantage of a multi-primary mode, where all instances are primaries.
+
+*** mysql router
+
+InnoDB Cluster is tightly integerated with MySQL Router.
+you can use AdminAPI to work with them together
+
+MySQL router can automatically configure itself based on an InnoDB Cluster, in a process called bootstrapping, which removes the need for you to configure routing manually.
+
+MySQL Router then transparently connects client applications to the InnoDB Cluster, providing routing and load-balancing for client connections.
+
+*** MySQL Clone
+
+Using InnoDB Cluster, you can simply add an instance to the cluster and it is automatically provisioned.
+
+* innodb cluster full documentation

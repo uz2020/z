@@ -1,0 +1,8 @@
+* for loop readlines
+
+scanner := bufio.NewScanner(strings.NewReader(x))
+for scanner.Scan() {
+    fmt.Println(scanner.Text())
+}
+
+* wait group
