@@ -1,0 +1,114 @@
+* solidity by example
+** hello world
+** first app
+** primitive data types
+** variables
+** constants
+** immutable
+** reading and writing to a state variable
+** ether and wei
+** gas and gas price
+** if / else
+** for and while loop
+** mapping
+** array
+** enum
+** structs
+** data locations - storage, memory and calldata
+** function
+** view and pure functions
+** error
+** function modifier
+** events
+** constructor
+** inheritance
+** shadowing inherited state variables
+** calling parent contracts
+** visibility
+** interface 
+** payable
+** sending ether - transfer, send and call
+** fallback
+** call
+** delegatecall
+** function selector
+** calling other contract
+** creating contracts from a contract
+** try / catch
+** import
+** library
+** ABI encode
+** ABI decode
+** hashing with keccak256
+** verifying signature
+** gas optimizations
+** bitwise operators
+* applications
+* hacks
+* tests
+* defi
+* soliditylang
+
+** basics
+
+*** solidity by example
+
+1. voting
+2. blind auction
+3. safe remote purchase
+4. micropayment channel
+5. modular contracts
+
+** language description
+
+*** layout of a solidity source file
+
+*** structure of a contract
+
+*** types
+
+*** units and globally available variables
+
+*** expressions and control structures
+
+*** contract
+
+*** inline assembly
+
+*** cheatsheet
+
+*** language grammar
+
+** compiler
+
+*** using the compiler
+
+*** analysing the compiler output
+
+*** solidity IR-based codegen changes
+
+** internals
+
+*** layout of state variables in storage
+
+*** layout in memory
+
+*** layout of call data
+
+*** cleaning up variables
+
+*** source mappings
+
+*** the optimizer
+
+the solidity compiler uses two different optimizer modules: The "old" optimizer that operates at the opcode level and the "new" optimizer that operates on YuI IR code.
+
+the opcode-based optimizer applies a set of simplification rules to opcodes.
+
+the YuI-based optimizer is much more powerful, because it can work across function calls.
+
+*** contract metadata
+
+*** contract ABI specification
+
+** additional material

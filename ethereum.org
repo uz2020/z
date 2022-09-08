@@ -1,0 +1,17 @@
+* learn
+** learning hub
+** ethereum basics
+*** smart contracts
+*** wallets
+*** security and scam prevention
+*** web3
+** ethereum protocol
+*** energy consumption
+*** upgrades
+*** improvement proposals
+*** history
+*** whitepayer
+*** glossary
+*** governance
+*** blockchain bridges
+*** zero-knowledge proofs

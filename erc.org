@@ -1,0 +1,28 @@
+* 4907
+
+rental NFT, an extension of EIP-721
+
+add a time-limited role with restricted permissions to EIP-721 tokens
+
+it proposes an additional role (user) which can be granted to addresses, and a time where the role is automatically revoked (expires).
+
+** motivation
+
+there may be an owner of the NFT that rents it out to a "user".
+
+the actions that a "user" should be able to take with an NFT would be different from the "owner".
+
+it makes sense to have separate roles that identify whether an address represents an "owner" or a "user" and manage permissions to perform actions accordingly.
+
+** specification
+
+*** interface
+
+1. event UpdateUser
+2. setUser
+3. userOf
+4. userExpires
+
+*** rationale
+
+*** test cases

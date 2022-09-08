@@ -3,3 +3,7 @@
 [ [ ./img/cat.jpg ] ]
 
 C-c C-x C-v toggle
+
+* webp
+
+(setq image-use-external-converter t)
