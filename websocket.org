@@ -288,22 +288,101 @@ all control frames MUST have a payload length of 125 bytes or less and MUST NOT 
 
 0x8
 
-the Close frame MAY contain a body that indicates
+the Close frame MAY contain a body that indicates a reason for closing, such as an endpoint shutting down,
+an endpoint having received a frame too large, or an endpoint having received a frame that does not conform to the format expected by the endpoint.
+
+if there is a body, the first two bytes of the body MUST be a 2-byte unsigned integer representing a status code with value /code/ defined in 7.4. following the 2-byte integer, the body MAY contain UTF-8-encoded data with value /reason/.
+
+the application MUST NOT send any more data frames after sending a Close frame.
+
+if an endpoint receives a Close frame and did not previously send a Close frame, the endpoint MUST send a Close frame in response.
+
+after both sending and receiving a Close message, an endpoint considers the WebSocket connection closed and MUST close the underlying TCP connection.
+
+the server MUST close the underlying TCP connection immediately. the client SHOULD wait for the server to close the connection but MAY close the connection at any time after sending and receiving a Close message, e.g., if it has not received a TCP Close from the server in a reasonable time period.
 
 **** ping
 
+NOTE: a ping frame may serve either as a keepalive or as a means to verify that the remote endpoint is still responsive.
+
 **** pong
+
+a Pong frame sent in response to a Ping frame must have identical "Application data" as found in the message body of the Ping frame being replied to.
+
+if an endpoint receives a Ping frame and has not yet sent Pong frame(s) in response to previous Ping frame(s), the endpoint MAY elect to send a Pong frame for only the most recently processed Ping frame.
+
+a Pong frame MAY be sent unsolicited. This serves as a unidirectional heartbeat.
+
+a response to an unsolicited Pong frame is not expected.
 
 *** data frames
 
+data frames (e.g., non-control frames) are identified by opcodes where the most significant bit of the opcode is 0.
+Currently defined opcodes for data frames include 0x1 (Text), 0x2 (Binary). 
+
+**** Text
+
+the "Payload data" is text data encoded as UTF-8.
+
+note that a particular text frame might include a partial UTF-8 sequence;
+
+however, the whole message MUST contain valid UTF-8.
+
+**** Binary
+
+The "Payload data" is arbitrary binary data whose interpretation is solely up to the application layer.
+
+
 *** examples
 
-1. a single-frame unmasked text message
-2. a single-frame masked text message
-3. a fragmented unmasked text message
-4. unmasked ping request and masked ping response
-5. 256 bytes binary message in a single unmasked frame
-6. 64KiB binary message in a single unmasked frame
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-------+-+-------------+-------------------------------+
+     |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+     |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+     |N|V|V|V|       |S|             |   (if payload len==126/127)   |
+     | |1|2|3|       |K|             |                               |
+     +-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+     |     Extended payload length continued, if payload len == 127  |
+     + - - - - - - - - - - - - - - - +-------------------------------+
+     |                               |Masking-key, if MASK set to 1  |
+     +-------------------------------+-------------------------------+
+     | Masking-key (continued)       |          Payload Data         |
+     +-------------------------------- - - - - - - - - - - - - - - - +
+     :                     Payload Data continued ...                :
+     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+     |                     Payload Data continued ...                |
+     +---------------------------------------------------------------+
+
+
+**** a single-frame unmasked text message
+
+"Hello"
+
+FIN, 0x1, length: 5
+0x81 0x05 0x48 0x65 0x6c 0x6c 0x6f
+
+**** a single-frame masked text message
+
+"Hello"
+
+FIN, 0x1, MASK, length: 5
+0x81 0x85 0x37 0xfa 0x21 0x3d 0x7f 0x9f 0x4d 0x51 0x58
+
+**** a fragmented unmasked text message
+
+0x01 0x03 0x48 0x65 0x6c "Hel"
+0x80 0x02 0x6c 0x6f "lo"
+
+**** unmasked ping request and masked ping response
+
+FIN, PING, 
+0x89 0x05 0x48 0x65 0x6c 0x6f
+
+
+**** 256 bytes binary message in a single unmasked frame
+
+**** 64KiB binary message in a single unmasked frame
 
 ** sending and receiving data
 
