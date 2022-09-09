@@ -216,6 +216,13 @@ defines the interpretation of the "Payload data".
 
 defines the "Payload data" is masked. If set to 1, a masking key is present in masking-key, and this is used to unmask the "Payload data" as per 5.3. All frames sent from client to server have this bit set to 1.
 
+**** payload length: 7bits, 7+16bits, or 7+64bits
+
+if 0-125, that is the payload length.
+
+if 126, the following 2 bytes interpreted as a 16-bit unsigned integer are the payload length.
+if 127, the following 8 bytes interpreted as a 64-bit unsigned integer are the payload length.
+
 **** Masking-key: 0 or 4 bytes
 
 all frames sent from the client to the server are masked by a 32-bit value that is contained within the frame.
@@ -379,14 +386,36 @@ FIN, 0x1, MASK, length: 5
 FIN, PING, 
 0x89 0x05 0x48 0x65 0x6c 0x6f
 
+MASKED, MASKING KEY, payload data
+0x8a 0x85 0x37 0xfa 0x21 0x3d 0x7f 0x9f 0x4d 0x51 0x58
+
 
 **** 256 bytes binary message in a single unmasked frame
+
+0x82 0x7e 0x0100 [256 bytes of binary data]
 
 **** 64KiB binary message in a single unmasked frame
 
 ** sending and receiving data
 
+*** sending data
+
+1. the endpoint MUST ensure the WebSocket connection is in the OPEN state.
+
+*** receiving data
+
 ** closing the connection
+
+an endpoint SHOULD use a method that cleanly closes the TCP connection, as well as the TLS session, if applicable, discarding any trailing bytes that may have been received.
+
+the underlying TCP connection, in most normal cases, SHOULD be closed first by the server, so that it holds the TIME_WAIT state and not the client (as this would prevent it from re-opening the connection for 2 maximum segment lifetimes(2MSL), while there is no corresponding server impact as a TIME_WAIT connection is immediately reopened upon a new SYN with a higher seq number).
+
+in abnormal cases (such as not having received a TCP Close from the server after a reasonable amount of time) aclient MAY initiate the TCP Close.
+
+as such, when a server is instructed to close the websocket connection it should initiate a TCP Close immediately.
+and when a client is instructed to do the same, it SHOULD wait for a TCP close from the server.
+
+as an example of how to obtain a clean closure in C using Berkeley sockets, one would call shutdown() with SHUT_WR on the socket, call recv() until obtaining a return value of 0 indicating that the peer has also performed an orderly shutdown, and finally call close() on the socket.
 
 ** error handling
 

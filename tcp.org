@@ -1,0 +1,131 @@
+* diagram
+
+#+BEGIN_SRC
+                              +---------+ ---------\      active OPEN
+                              |  CLOSED |            \    -----------
+                              +---------+<---------\   \   create TCB
+                                |     ^              \   \  snd SYN
+                   passive OPEN |     |   CLOSE        \   \
+                   ------------ |     | ----------       \   \
+                    create TCB  |     | delete TCB         \   \
+                                V     |                      \   \
+                              +---------+            CLOSE    |    \
+                              |  LISTEN |          ---------- |     |
+                              +---------+          delete TCB |     |
+                   rcv SYN      |     |     SEND              |     |
+                  -----------   |     |    -------            |     V
+ +---------+      snd SYN,ACK  /       \   snd SYN          +---------+
+ |         |<-----------------           ------------------>|         |
+ |   SYN   |                    rcv SYN                     |   SYN   |
+ |   RCVD  |<-----------------------------------------------|   SENT  |
+ |         |                    snd ACK                     |         |
+ |         |------------------           -------------------|         |
+ +---------+   rcv ACK of SYN  \       /  rcv SYN,ACK       +---------+
+   |           --------------   |     |   -----------
+   |                  x         |     |     snd ACK
+   |                            V     V
+   |  CLOSE                   +---------+
+   | -------                  |  ESTAB  |
+   | snd FIN                  +---------+
+   |                   CLOSE    |     |    rcv FIN
+   V                  -------   |     |    -------
+ +---------+          snd FIN  /       \   snd ACK          +---------+
+ |  FIN    |<-----------------           ------------------>|  CLOSE  |
+ | WAIT-1  |------------------                              |   WAIT  |
+ +---------+          rcv FIN  \                            +---------+
+   | rcv ACK of FIN   -------   |                            CLOSE  |
+   | --------------   snd ACK   |                           ------- |
+   V        x                   V                           snd FIN V
+ +---------+                  +---------+                   +---------+
+ |FINWAIT-2|                  | CLOSING |                   | LAST-ACK|
+ +---------+                  +---------+                   +---------+
+   |                rcv ACK of FIN |                 rcv ACK of FIN |
+   |  rcv FIN       -------------- |    Timeout=2MSL -------------- |
+   |  -------              x       V    ------------        x       V
+    \ snd ACK                 +---------+delete TCB         +---------+
+     ------------------------>|TIME WAIT|------------------>| CLOSED  |
+                              +---------+                   +---------+
+#+END_SRC
+
+* introduction
+
+** motivation
+
+** scope
+
+** about this document
+
+** interfaces
+
+** operation
+
+* philosophy
+
+** elements of the internetwork system
+
+** model of operation
+
+** the host environment
+
+** interfaces
+
+** relation to other protocols
+
+** reliable communication
+
+** connection establishment and clearing
+
+** data communication
+
+** precedence and security
+
+** robustness principle
+
+* functional specification
+
+** header format
+
+** terminology
+
+** sequence numbers
+
+** establishing a connection
+
+** closing a connection
+
+the user who CLOSEs may continue to RECEIVE until he is told that the other side has CLOSED also.
+
+thus, a program could initiate several SENDs followed by a CLOSE, and then continue to RECEIVE until signaled that a RECEIVE failed because the other side has CLOSED.
+
+we assume that the TCP will signal a user, even if no RECEIVEs are outstanding, that the other side has closed, so the user can terminate his side gracefully.
+
+a TCP will reliably deliver all buffers SENT before the connection was CLOSED so a user who expects no data in return need only wait to hear the connection was CLOSED successfully to know that all his data was received at the destination TCP.
+
+users must keep reading connections they close for sending until the TCP says no more data.
+
+
+there are essentially three cases:
+
+1. the user initiates by telling the TCP to CLOSE the connection
+2. the remote TCP initiates by sending a FIN control signal
+3. both users CLOSE simultaneously
+
+case 1: local user initiates the close
+
+a FIN segment can be constructed and placed on the outgoing segment queue.
+no further SENDs from the user will be accepted by the TCP, and it enters the FIN-WAIT-1 state.
+RECEIVEs are allowed in this state. all segments preceding and including FIN will be retransmitted until acknowledged. 
+when the other TCP has both acknowledged the FIN and sent a FIN of its own, the first TCP can ACK this FIN.
+Note that a TCP receiving a FIN will ACK but not send its own FIN until its user has CLOSED the connection also.
+
+case 2: TCP receives a FIN from the network
+
+case 3: both users close simultaneously
+
+** precedence and security
+
+** data communication
+
+** interfaces
+
+** event processing
