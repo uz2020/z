@@ -1,0 +1,86 @@
+* 入门
+
+** grep
+
+** awk
+
+*** BEGIN{} section
+
+optional, done before processing
+
+*** main {} section
+
+works on each line of the file
+
+
+for each line, it sees if there are any pattern-matching instructions
+
+it only operates on lines that match that pattern
+
+otherwise it operates on all lines
+
+awk can do maths and string manipulations
+
+awk supports associative arrays
+
+awk sees each line as being made up of a number of fields, each being separated by a 'field separator'
+
+the field separator is set by the awk internal variable FS
+
+other useful internal variables are NR which is the current record number (ie the line number of the input file)
+
+and NF is the number of fields in the current line
+
+*** END{} section
+
+optional happens after the file reading has finished
+
+*** 列求和
+
+ls -l | awk 'BEGIN {sum=0} {sum=sum+$5} END {print sum}'
+
+注意，{print sum}与{print $sum}不同，$sum表示取值，把sum作为指针。比如当sum是2时，$sum表示第二列。
+
+*** 均值和标准差
+
+you accumulate 'sum_x' and 'sum_x2' inside the main part, and then use the standard formulae to calculate mean and standard deviation in the END part.
+
+AWK provides support for loops (both 'for' and 'while') and for branching (using 'if').
+
+so if you wanted to trim a file and only operate on every 3rd line for instance.
+
+ls -l | awk '{for (i=1;i<3;i++) {getline}; print NR, $0}'
+
+where the 'for' loop uses a 'getline' command to move through the file, and only prints out every 3rd line.
+
+note that as the number of lines of the file is 10, which is not divisible by 3, the final command finishes early and so the final 'print $0' command prints line 10.
+
+*** pattern matching
+
+the pattern comes first, and then the action.
+
+action statements are enclosed in { and }. either the pattern may be missing, or the action may be missing.
+
+AWK patterns include regular expressions (uses same syntax as 'grep -E') and combinations using the special symbols '&&', '||', '!'
+
+can also do relational patterns, groups of patterns, ranges
+
+*** AWK control statements
+
+if (condition) statement [ else statement ]
+while (condition) statement
+do statement while (condition)
+for (expr1; expr2; expr3) statement
+for (var in array) statement
+break
+continue
+
+exit [ expression ]
+
+*** AWK input/output statements
+
+*** AWK numeric functions
+
+*** AWK string functions
+
+*** AWK command-line and usage
