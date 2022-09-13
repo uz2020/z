@@ -7,3 +7,18 @@ C-c C-x C-v toggle
 * webp
 
 (setq image-use-external-converter t)
+
+
+* breaking down tasks into subtasks
+
+it is often advisable to break down large tasks into smaller, manageable subtasks.
+
+create an outline tree below a TODO item, with detailed subtasks on the tree
+
+to keep an overview of the fraction of subtasks that have already been marked as done
+
+insert either '[/]' or '[%]' anywhere in the headline.
+
+these cookies are updated each time the TODO status of a child changes
+
+when pressing C-c C-c on the cookie. 

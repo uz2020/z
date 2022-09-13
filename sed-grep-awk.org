@@ -84,3 +84,17 @@ exit [ expression ]
 *** AWK string functions
 
 *** AWK command-line and usage
+
+*** 给单词加引号
+
+echo  "imix, ik, akbal, kan, chicchan, cimi, manik, lamat, muluk, ok, chuen, eb, ben, ix, mem, cib, caban, eznab, canac, ahau" | awk -F ', ' '{for(i=1;i<NF;i++) {printf "\"%s\",", $i}; print ""}'
+
+print "" 是换行。print后面不加参数是打印$0。
+
+for loop中i要从1开始。因为$0表示current record。
+
+** sed
+
+* sed and awk
+
+
