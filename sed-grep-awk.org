@@ -87,7 +87,7 @@ exit [ expression ]
 
 *** 给单词加引号
 
-echo  "imix, ik, akbal, kan, chicchan, cimi, manik, lamat, muluk, ok, chuen, eb, ben, ix, mem, cib, caban, eznab, canac, ahau" | awk -F ', ' '{for(i=1;i<NF;i++) {printf "\"%s\",", $i}; print ""}'
+echo  "imix, ik, akbal, kan, chicchan, cimi, manik, lamat, muluk, ok, chuen, eb, ben, ix, mem, cib, caban, eznab, canac, ahau" | awk -F ', ' '{for(i=1;i<=NF;i++) {printf "\"%s\",", $i}; print ""}'
 
 print "" 是换行。print后面不加参数是打印$0。
 
