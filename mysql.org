@@ -56,3 +56,28 @@ MySQL Router then transparently connects client applications to the InnoDB Clust
 Using InnoDB Cluster, you can simply add an instance to the cluster and it is automatically provisioned.
 
 * innodb cluster full documentation
+
+* group by
+
+select fragment_id, count(*) from fragment_record where created_at > 1663545600 group by fragment_id order by fragment_id;
+
+* bit_count
+
+select bit_count(fragments) from fragment where updated_at > 1663545600;
+
+* bitwise
+
+select BIN(fragments), (fragments & b'11111') from fragment;
+
+select wallet, BIN(fragments) from fragment where (fragments & x'1f') = x'1f';
+
+select wallet, BIN(fragments) from fragment where (fragments & 0x1f) = 0x1f and updated_at > 1663545600;
+
+select wallet, BIN(fragments) from fragment where ((fragments >> 5) & x'1f') = 0x1f and updated_at > 1663545600;
+
+select wallet, BIN(fragments) from fragment where ((fragments >> 10) & x'1f') = 0x1f and updated_at > 1663545600;
+
+select wallet, BIN(fragments) from fragment where ((fragments >> 15) & x'1f') = 0x1f and updated_at > 1663545600;
+
+
+select wallet, BIN(fragments) from fragment where (fragments & x'ffff') = x'ffff';

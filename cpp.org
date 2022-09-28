@@ -1,5 +1,123 @@
 * associative containers
 
-map
+although the associative containers share much of the behavior of the sequential containers, they diff from the sequential containers in ways that reflect the use of keys.
+
+the two primary associative-container types are map and set.
+
+the library provides eight associative containers.
+
+diff along three dimensions
+1. set or map
+2. requires unique keys or allows multiple keys
+3. stores the elements in order or not
+
+the unordered containers use a hash function to organize their elements
+
+we'll have more to say about the hash function in 11.4
+
+the map and multimap types are defined in the map header
+
+the unordered containers are in the unordered_map and unordered_set headers
+
+before we look at the details of how the library supports these types, it will be helpful to start with examples of how we can use these containers.
+
+like the sequential containers, the associative containers are templates
+
+if word is not already in the map, the subscript operator creates a new element whose key is word and whose value is 0. regardless of whether the element had to be created, we increment the value.
+
+once we've read all the input, the range for iterates through the map, printing each word and the corresponding counter. (3.2.3)
+
+when we fetch an element from a map, we get an object of type pair.
+which we'll describe in 11.2.3. briefly, a pair is a template type that holds two (public) data elements named first and second.
+
+** range for
+
+#+BEGIN_SRC c++
+for (const auto &w : word_count) {
+cout << w.first << w.second;
+}
+#+END_SRC
+
+旧 (iterator)
+
+#+BEGIN_SRC c++
+for (w = out.begin(); w != out.end(); ++w)
+w->first
+w->second
+#+END_SRC
+
+** set
+
+the important difference between this program and the previous program is that before counting each word, we check whether the word is in the exclusion set.
+
+#+BEGIN_SRC cpp
+if (exclude.find(word) == exclude.end())
+#+END_SRC
+
+the call to find returns an iterator. if the given key is in the set, the iterator refers to that key.
+
+if the element is not found, find returns the off-the-end iterator.
+
+** overview of the associative containers
+
+associative containers support the general container operations covered in 9.2.
+
+the associative containers do not support the sequential-container position-specific operations, such as push_front or back.
+
+moreover, the associative containers do not support the constructors or insert operations that take an element value and a count.
+
+in addition to the operations they share with the sequential containers, the associative containers provide some operations and type aliases that the sequential containers do not.
+
+in addition, the unordered containers provide operations for tuning their hash performance.
+
+the associative container iterators are bidirectional.
+
+we can also initialize an associative container as a copy of another container of the same type or from a range of values, so long as those values can be converted to the type of the container.
+
+under the new standard, we can also list initialize the elements:
+
+#+BEGIN_SRC
+set<string> exclude = {"the", "but"}
+map<string, string> authors = {{"Joyce", "James"}}
+#+END_SRC
+
+** multimap or multiset
+
+** requirements on key type
+
+the associative containers place constraints on the type that is used as a key
+
+we'll cover the requirements for keys in the unordered containers in 11.4.
+
+for the ordered containers, the key type must define a way to compare the elements.
+
+callable objects passed to a sort algorithm (10.3.1) must meet the same requirements as do the keys in an associative container.
+
+** key types for ordered containers
+
+just as we can provide our own comparison operation to an algorithm, we can also supply our own operation to use in place of the < operator on keys.
+
+the specified operation must define a strict weak ordering over the key type.
+
+in practice, what's important is that a type that defines a < operator that "behaves normally" can be used as a key
+
+** using a comparison function for the key type
+
+** the pair type
+
+before we look at the operations on associative containers, we need to know about the library type named pair, which is defined in the utility header.
+
+a pair holds two data members. like the containers, pair is a template from which we generate specific types.
+
+we must supply two type names when we create a pair. 
+
+the default pair constructor value initializes the data members.
+
+we can also provide initializers for each member
+
+#+BEGIN_SRC cc
+pair<string, string> author{"James", "Joyce"};
+#+END_SRC
+
 
 * cin

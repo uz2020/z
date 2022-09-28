@@ -1,0 +1,11 @@
+* the move programming language
+
+move is a safe and reliable language developed for blockchains by Diem.
+
+* foreword
+
+currently, there is a Move documentation written by language developers.
+
+yet I still think that flow given in this book is more intuitive and more friendly for a newcomer.
+
+Move is one tricky and interesting language some concepts of which might be mind-blowing.

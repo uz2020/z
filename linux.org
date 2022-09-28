@@ -1,0 +1,5 @@
+* date
+
+转timestamp
+
+date -d '2022-09-19' +%s

@@ -95,6 +95,13 @@ for loop中i要从1开始。因为$0表示current record。
 
 ** sed
 
-* sed and awk
+perhaps the most useful feature is to do a 'search-and-replace' for one string to another.
 
+you can embed your sed commands into the command-line that invokes sed using the '-e' option, or put them in a separate file (-e script, add the script to the commands to be executed)
+
+e.g. 'sed.in' and invoke sed using the '-f sed.in' option.
+
+this latter option is most used if the sed commands are complex and involve lots of regexps!
+
+* sed and awk
 
