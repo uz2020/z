@@ -18,7 +18,25 @@
 
 * mastering ethereum
 
+** glossary
+
+*** truffle
+
+one of the most commonly used Ethereum development frameworks
+
+*** Turing complete
+
+a system of data manipulation rules is said to be "Turing complete" or "computationally universal" if it can be used to simulate any Turing machine.
+
+*** vyper
+
+a high-level programming language, similar to Serpent, with Python-like syntax.
+
+intended to get closer to a pure functional language. created by Vitalik Buterin.
+
 ** smart contracts and solidity
+
+*** gas consideration
 
 gas, is an incredibly important consideration in smart contract programming.
 
@@ -28,6 +46,116 @@ gas is a resource constraining the maximum amount of computation that Ethereum w
 3. all ether used to pay for the gas is taken as a transaction fee
 
 users are discouraged from calling functions that have a high gas cost. it is thus in the programmer's best interest to minimize the gas cost of a contract's functions. to this end, there are certain practices that are recommended when constructing smart contracts, so as to minimize the gas cost of a function call.
+
+**** avoid dynamically sized arrays
+
+any loop through a dynamically sized array where a function performs operations on each element or searches for a particular element introduces the risk of using too much gas. indeed, the contract may run out of gas before finding the desired result, or before acting on every element, thus wasting time and ether without giving any result at all.
+
+**** avoid calls to other contracts
+
+calling other contracts, especially when the gas cost of their functions is not known, introduces the risk of running out of gas.
+
+**** estimating gas cost
+
+if you need to estimate the gas necessary to execute a certain method of a contract considering its arguments
+
+gasEstimate will tell you the number of gas units needed for its execution. it is an estimate because of the Turing completeness of the EVM.
+it is relatively trivial to create a function that will take vastly different amounts of gas to execute different calls.
+
+even production code can change execution paths in subtle ways, resulting in hugely different gas costs from one call to the next.
+
+however, most functions are sensible and estimateGas will give a good estimate most of the time.
+
+estimateGas函数只是返回gas unit, 预估费用要乘以油价(getGasPrice).
+
+
+*** life cycle of a smart contract
+
+they must be compiled to the low-level bytecode that runs in the EVM.
+
+once compiled, they are deployed on the Ethereum platform using a special contract creation transaction, which is identified as such by being sent to the special contract creation address
+
+** ethereum basics
+
+*** getting started with metamask
+
+**** a simple contract
+
+Ethereum has many different high-level languages, all of which can be used to write a contract and produce EVM bytecode. you can read about many of the most prominent and interesting ones in "introduction to Ethereum High-Level Languages".
+
+One high-level language is by far the dominant choice for smart contract programming: Solidity.
+
+the msg object is one of the inputs that all contracts can access. it represents the transaction that triggered the execution of this contract.
+the attribute sender is the sender address of the transaction. the function transfer is a built-in function that transfers ether from the current contract to the address of the sender.
+
+reading it backward, this means transfer to the sender of the msg that triggered this contract execution.
+
+
+function () public payable {}
+
+this function is a so-called fallback or default function, which is called if the transaction that triggered the contract didn't name any of the declared functions in the contract, or any function at all, or didn't contain data.
+
+contracts can have one such default function (without a name) and is usually the one that receives ether. that's why it is defined as a public and payable function, which means it can accept ether into the contract. it doesn't do anything, other than accept the ether, as indicated by the empty definition in the curly braces.
+
+if we make a transaction that sends ether to the contract address, as if it were a wallet, this function will handle it.
+
+**** creating the contract on the blockchain
+
+registering a contract on the blockchain involes creating a special transaction whose destination is the address null (0x00), also  know as the zero address.
+
+the zero address is a special address that tells the Ethereum blockchain that you want to register a contract.
+
+fortunately, the Remix IDE will handle all of that for you and send transaction to metamask.
+
+Remix will construct the special "creation" transaction and MetaMask will ask you to approve it.
+
+**** interacting with the contract
+
+Ethereum contracts are programs that control money, which run inside a virtual machine called the EVM. they are created by a special transaction that submits their bytecode to be recorded on the blockchain.
+
+once they are created on the blockchain, they have an Ethereum address, just like wallets.
+
+anytime someone sends a transaction to a contract address it causes the contract to run in the EVM, with the transaction as its input.
+
+transactions sent to contract addresses may have ether or data or both. if they contain ether, it is "deposited" to the contract balance.
+
+if they contain data, the data can specify a named function in the contract and call it, passing arguments to the function.
+
+
+when you sent a transaction to the contract address, with no data specifying which function to call, it called this default function. 
+
+function () public payable {}
+
+because we declared it as payable, it accepted and deposited the 1 ether into the contract's account balance. you transaction caused the contract to run in the EVM, updating its balance.
+
+due to a limitation in Javascript, a number as large as 10^17 cannot be processed by Remix. Instead, we enclose it in double quotes, to allow Remix to receive it as a string and manipulate it as a BigNumber.
+
+But we don't see an "OUT" transaction in the contract address history.
+
+Where's the outgoing withdral? a new tab has appeared on the contract's address history page, named Internal Transactions. Because the 0.1 ether transfer originated from the contract code, it is an internal transaction (also called a message).
+
+first it called the require function and validated that the requested amount was less than or equal to the maximum allowed withdrawal of 0.1 ether.
+
+**** EOA
+
+the type of account you created in the MetaMask wallet is called an externally owned account(EOA).
+
+Now, you're probably guessing there is another type of account. That other type of account is a contract account. A contract account has smart contract code, which a simple EOA can't have.
+
+furthermore, a contract account does not have a private key. instead, it is owned by the logic of its smart contract code.
+
+contracts have addresses, just like EOAs. contracts can also send and receive ether, just like EOAs.
+
+however, when a transaction destination is a contract address, it causes that contract to run in the EVM, using the transaction's data as its input.
+
+in addition to ether, transactions can contain data indicating which specific function in the contract to run and what parameters to pass to that function. in this way, transactions can call functions within contracts.
+
+note that because a contract account does not have a private key, it cannot initiate a transaction.
+
+only EOAs can initiate transactions, but contracts can react to transactions by calling other contracts, building complex execution paths.
+
+1. one typical use of this is an EOA sending a request transaction to a multisignature smart contract wallet to send some ETH on to another address.
+2. a typical DApp programming pattern is to have Contract A calling Contract B in order to maintain a shared state across users of Contract A.
 
 ** oracles
 
@@ -118,3 +246,181 @@ as you can see, oracles provide a crucial service to smart contracts: they bring
 generally, when considering the use of an oracle be very careful about the trust model. if you assume the oracle can be trusted, you may be undermining the security of your smart contract by exposing it to potentially false inputs.
 
 decentralized oracles can resolve some of these concerns and offer Ethereum smart contracts trustless external data. choose carefully and you can start exploring the bridge between Ethereum and the "real world" that oracles offer.
+
+** cryptography
+
+Cryptography can, for example, also be used to prove knowledge of a secret without revealing that secret (证明我知道这个密钥, e.g., with a digital signature), or to prove the authenticity of data (e.g., with digital fingerprints, also known as "hashes")
+
+these types of cryptographic proofs are mathematical tools critical to the operation of the Ethereum platform, and are also extensively used in Ethereum applications.
+
+Note that, at the time of publication, no part of the Ethereum protocol involves encryption; that is to say all communications with the Ethereum platform and between nodes are unencrypted and can be read by anyone.
+
+this is so everyone can verify the correctness of state updates and consensus can be reached.
+
+in the future, advanced cryptographic tools, such as zero knowledge proofs and homomorphic encryption, will be available that will allow for some encrypted calculations to be recorded on the blockchain while still enabling consensus; however, while provision has been made for them, they have yet to be deployed.
+
+we will introduce some of the cryptography used in Ethereum: namely public key cryptography (PKC), which is used to control ownership of funds, in the form of private keys and addresses.
+
+*** keys and addresses
+
+ownership of ether by EOAs is established through digital private keys, Ethereum addresses, and digital signatures. 
+
+only account addresses and digital signatures are ever transmitted and stored on the Ethereum system.
+
+access and control of funds is achieved with digital signatures, which are also created using the private key. Ethereum transactions requires a valid digital signature to be included in the blockchain.
+
+the private keys themselves are very rarely seen by Ethereum users; for the most part, they are stored in special files and managed by Ethereum wallet software.
+
+in the payment portion of an Ethereum transaction, the intended recipient is repsented by an Ethereum address, which is used in the same way as the beneficiary accout details of a bank account.
+
+as we will see in more detail shortly, an ethereum address for an EOA is generated from the public key portion of a key pair. however, not all Ethereum addresses represent public-private key pairs; they can also represent contracts, which, are not backed by private keys.
+
+*** public key cryptography and cryptocurrency
+
+public key cryptography (also called "asymmetric cryptography") is a core part of modern-day information security.
+
+the key exchange protocol, first published in the 1970s by Martin Hellman, ... and Ralph Merkle, was a monumental breakthrough that incited the first big wave of public interest in the field of cryptography.
+
+public key cryptography uses unique keys to secure information.
+
+these keys are based on mathematical functions that have a special property: it is easy to calculate them, but hard to calculate their inverse. based on these functions, cryptography enables the creation of digital secrets and unforgeable digital signatures, which are secured by the laws of mathematics.
+
+for example, multiplying two large prime numbers together is trivial.
+
+but given the product of two large primes, it is very difficult to find the prime factors.
+
+some of these mathematical functions can be inverted easily if you know some secret information.
+such functions are often called trapdoor functions because they are very difficult to invert unless you are given a piece of secret information that can be used as a shortcut to reverse the function.
+
+a more advanced category of mathematical functions that is useful in cryptography is based on arithmetic operations on an elliptic curve. in elliptic curve arithmetic, multiplication modulo a prime is simple but division (the inverse) is practically impossible.
+
+this is called the discrete logarithm problem and there are currently no known trapdoors.
+elliptic curve cryptography is used extensively in modern computer systems and is the basis of Ethereum's use of private keys and digital signatures.
+
+1. cryptography
+2. trapdoor function
+3. prime factorization
+4. discrete logarithm
+5. elliptic curve cryptography
+
+in Ethereum, we use public key cryptography to create the public-private pair we have been talking about this chapter.
+They are considered a "pair" because the public key is derived from the private key.
+
+a digital signature can be created to sign any message. for Ethereum transactions, the details of the transaction itself are used as the message.
+
+the mathematics of cryptography - in this case, elliptic curve cryptography - provides a way for the message (i.e., the transaction details) to be combined with the private key to create a code that can only be produced with knowledge of the private key. that code is called the digital signature.
+
+when a transaction is sent to the Ethereum network in order to move funds or interact with smart contracts, it needs to be sent with a digital signature created with the private key corresponding to the Ethereum address in question.
+
+elliptic curve mathematics means that anyone can verify that a transaction is valid, by checking that the digital signature matches the transaction details and the Ethereum address to which access is being requested.
+
+the verification determines beyond doubt that the transaction could have only come from someone with the private key that corresponds to the public key behind the Ethereum address.
+
+*** private keys
+
+a private key is simply a number, picked at random.
+
+ownership and control of the private key is the root of user control over all funds associated with the corresponding Ethereum address, as well as access to contracts that authorize that address.
+
+**** generating a private key from a random number
+
+the first and most important step in generating keys is to find a secure source of entropy, or randomness.
+
+Ethereum software uses the underlying operating system's random number generator to produce 256 random bits.
+
+usually, the OS random number generator is initialized by a human source of randomness, which is why you may be asked to wiggle your mouse around for a few seconds.
+
+an alternative could be cosmic radiation noise on the computer's microphone channel.
+
+the exact number shares the first 38 digits with 2^256 and is defined as the order of the elliptic curve used in Ethereum.
+
+in programming terms, this is usually achieved by feeding an even larger string of random bits into a 256-bit hash algorithm such as Keccak-256 or SHA-256, both of which will conveniently produce a 256-bit number. if the result is within the valid range, we have a suitable private key.
+
+study the documentation of the random number generator library you choose to make sure it is cryptographically secure.
+
+use a cryptographically secure pseudorandom number generator (such as CSPRNG) with a seed from a source of sufficient entropy.
+
+*** public keys
+
+an Ethereum public key is a point on an elliptic curve, meaning it is a set of x and y coordinates that satisfy the elliptic curve equation.
+
+in simpler terms, an Ethereum public key is two numbers, joined together.
+
+these numbers are produced from the private key by a calculation that can only go one way.
+
+MATH is about to happen! Don't panic.
+
+for example, the following is a point Q with coordinates (x,y) that is a point on the secp256k1 curve.
+
+**** elliptic curve libraries
+
+openssl: including a full implementation of secp256k1.
+
+libsecp256k1: bitcoin core's libsecp256k1 is a C-language implementation of the secp256k1 elliptic curve and other cryptographic primitives. it was written from scratch to replace OpenSSL in Bitcoin Core software.
+
+*** cryptographic hash functions
+
+much more than encryption algorithms, one-way hash functions are the workhorses of modern cryptography.
+
+in this section we explore their basic properties, and see how those properties make them so useful in so many areas of modern cryptography.
+
+we address hash functions here because they are part of the transformation of Ethereum public keys into addresses.
+
+they can also be used to create digital fingerprints.
+
+finding two sets of input data that hash to the same output is called finding a hash collision.
+
+resistance to hash collisions is particularly important for avoiding digital signature forgery in Ethereum.
+
+properties:
+1. determinism
+2. verifiability
+3. noncorrelation
+4. irreversibility
+5. collision protection
+
+the combination of these properties make cryptographic hash functions useful for a broad range of security applications:
+1. data fingerprinting
+2. message integrity
+3. proof of work
+4. authentication
+5. pseudorandom number generators
+6. message commitment
+7. unique identifiers
+
+we will find many of these in Ethereum as we progress through the various layers of the system.
+
+**** Ethereum's Cryptographic Hash Function: Keccak-256
+
+keccak-256 was designed as a candidate for the SHA-3 cryptographic hash function competition held in 2007.
+
+keccak was the winning algorithm, which became standardized as Federal Information Processing Standard (FIPS) 202 in 2015.
+
+during the period when Ethereum was developed, the NIST standardization was not yet finalized.
+
+this was occurring at the same time as heroic whistleblower Edward Snowden revealed documents that imply that NIST may have been improperly influenced by the NSA to intentionally weaken the Dual_EC_DRBG random-number generator standard, effectively placing a backdoor in the standard random number generator. the result of this controversy was a backlash against the proposed changes and a significant delay in the standardization of SHA-3.
+
+at the time, the Ethereum foundation decided to implement the original Keccak algorithm, as proposed by its inventors, rather than the SHA-3 standard as modified by NIST.
+
+
+remember, Ethereum used Keccak-256, even though it is often called SHA-3 in the code.
+
+*** Ethereum addresses
+
+Ethereum addresses are unique identifiers that are derived from public keys or contracts using the Keccak-256 one-way hash function.
+
+it is worth noting that the public key is not formatted with the prefix (hex) 04 when the address is calculated.
+
+we use keccak-256 to calculate the hash of this public key.
+
+then we keep only the last 20 bytes (least significant bytes)
+
+unlike Bitcoin addresses, which are encoded in the user interface of all clients to include a built-in checksum to protect against mistyped addresses, Ethereum addresses are presented as raw hexadecimal without any checksum.
+
+the rationale behind that decision was that Ethereum addresses would eventually be hidden behind abstractions (such as name services) at higher layers of the system and that checksums should be added at higher layers if necessary.
+
+in reality, these higher layers were developed too slowly and this design choice led to a number of problems in the early days of the ecosystem, including the loss of funds due to mistyped addreses and input validation errors.
+
+furthermore, because Ethereum name services were developed slower than initially expected, alternative encodings were adopted very slowly by wallet developers.
+
+/we also looked at digital signatures and how they can demonstrate ownership of a private key without revealing that private key/
